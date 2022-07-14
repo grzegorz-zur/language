@@ -1,8 +1,4 @@
-body {
+* {
  font-size: 48pt;
  text-align: center;
-}
-
-select {
-  font-size: 48pt;
 }

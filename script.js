@@ -1,52 +1,57 @@
-let translations = {};
+class Language extends CustomEvent {
 
-class LanguageChange extends CustomEvent {
-
- static ID = "language-change";
-  
+ static ID = "language";
  code;
+ translations;
 
- constructor(code) {
-  super(LanguageChange.ID, { detail: { code } });
+ constructor(code, translations) {
+  super(Language.ID, { detail: { code, translations } });
  }
 
 }
  
 async function language(code) {
  const response = await fetch(`${code}.json`);
- translations = await response.json();
- document.dispatchEvent(new LanguageChange(code));
-} 
+ const translations = await response.json();
+ document.dispatchEvent(new Language(code, translations));
+}
 
 class Selector extends HTMLElement {
 
- static ID = 0;
- 
  id;
 
  constructor() {
   super();
-  this.id = ++Selector.ID;
-  console.log(this.id);
+  const shadow = this.attachShadow({ mode: "open" });
+  const style = document.querySelector("#style").cloneNode(true);
+  shadow.appendChild(style);
   const content = document.querySelector("#lang-selector").content.cloneNode(true);
   content.querySelector("select").addEventListener("change", (event) => this.select(event));
-  document.addEventListener(LanguageChange.ID, (event) => this.change(event));
-  const style = document.querySelector("#style").cloneNode(true);
-  const shadow = this.attachShadow({ mode: "open" });
-  shadow.appendChild(style);
   shadow.appendChild(content);
+  document.addEventListener(Language.ID, (event) => this.change(event));
  }
 
  select(event) {
-  console.log(this.id, "select");
   language(event.target.value);
  }
 
  change(event) {
-  console.log(this.id, "change", event.detail);
   this.shadowRoot.querySelector("select").value = event.detail.code;
+  this.shadowRoot.querySelectorAll("[data-translation]").forEach(
+   (node) => {
+    const id = node.attributes["data-translation"].value;
+    const translation = event.detail.translations[id];
+    node.textContent = translation;
+   }
+  );
  }
 
 }
 
 customElements.define("lang-selector", Selector);
+
+function init() {
+ language("en");
+}
+
+window.addEventListener("load", () => init());
