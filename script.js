@@ -23,8 +23,7 @@ class Selector extends HTMLElement {
 
  id;
 
- constructor() {
-  super();
+ connectedCallback() {
   const shadow = this.attachShadow({ mode: "open" });
   const style = document.querySelector("#style").cloneNode(true);
   shadow.appendChild(style);
