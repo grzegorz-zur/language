@@ -1,3 +1,5 @@
 {
- "language": "Language"
+ "language": "Language",
+ "language.en": "English",
+ "language.pl": "Polish"
 }
